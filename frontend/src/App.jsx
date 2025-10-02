@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 function App() {
-  return (
-    <div className='text-center bg-green-500'>Hello World</div>
-  )
+  <Router>
+    <Route>
+
+    </Route>
+  </Router>
 }
 
 export default App
