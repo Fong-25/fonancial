@@ -14,26 +14,36 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setIsLoading(true)
 
-        setTimeout(() => {
-            if (formData.username && formData.password) {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+                method: "POST",
+                credentials: "include", // important for JWT cookies
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            })
+
+            const data = await res.json()
+
+            if (res.ok) {
                 toast.success("Login successful!")
                 navigate("/dashboard")
             } else {
-                toast.error("Please fill in all fields")
+                toast.error(data.message || "Login failed")
             }
+        } catch (error) {
+            console.error("Login error:", error)
+            toast.error("Something went wrong")
+        } finally {
             setIsLoading(false)
-        }, 1500)
+        }
     }
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        })
+        setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
     return (

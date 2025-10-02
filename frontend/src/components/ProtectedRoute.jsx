@@ -6,7 +6,7 @@ export const useUser = () => useContext(UserContext)
 
 export default function ProtectedRoute({ children }) {
     const navigate = useNavigate()
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [isAuthenticated, setIsAuthenticated] = useState(null)
     const [user, setUser] = useState(null)
 
     useEffect(() => {

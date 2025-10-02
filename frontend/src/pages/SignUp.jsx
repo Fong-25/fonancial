@@ -17,33 +17,41 @@ export default function SignUp() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
+        if (formData.password !== formData.confirmPassword) {
+            toast.error("Passwords do not match")
+            return
+        }
+
         setIsLoading(true)
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                }),
+            })
 
-        setTimeout(() => {
-            if (formData.password !== formData.confirmPassword) {
-                toast.error("Passwords do not match")
-                setIsLoading(false)
-                return
-            }
-
-            if (formData.username && formData.email && formData.password) {
+            const data = await res.json()
+            if (res.ok) {
                 toast.success("Account created successfully!")
-                navigate("/dashboard")
+                navigate("/login")
             } else {
-                toast.error("Please fill in all fields")
+                toast.error(data.message || "Signup failed")
             }
+        } catch (error) {
+            console.error("Signup error:", error)
+            toast.error("Something went wrong")
+        } finally {
             setIsLoading(false)
-        }, 1500)
+        }
     }
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        })
-    }
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
