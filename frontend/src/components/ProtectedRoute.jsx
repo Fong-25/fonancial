@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }) {
     useEffect(() => {
         const verifyUser = async () => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify`, {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard`, {
                     method: "GET",
                     credentials: "include"
                 })
