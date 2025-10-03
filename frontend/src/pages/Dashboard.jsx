@@ -5,6 +5,7 @@ import RecentTransactions from "../components/RecentTransactions.jsx"
 import { useEffect, useState } from "react"
 import { useUser } from '../components/ProtectedRoute.jsx'
 import AddTransaction from "../components/AddTransaction.jsx"
+import AddAccount from "../components/AddAccount.jsx"
 
 export default function Dashboard() {
     const user = useUser()
@@ -51,6 +52,7 @@ export default function Dashboard() {
                 <RecentTransactions transactions={data.recentTransactions} />
             </div>
             <AddTransaction accounts={data.accounts} user={data.user} onTransactionAdded={fetchDashboard} />
+            <AddAccount user={data.user} onAccountAdded={fetchDashboard} />
         </div>
     )
 
