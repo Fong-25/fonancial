@@ -82,6 +82,8 @@ export default function RecentTransactions({ transactions }) {
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-xs text-muted-foreground">{transaction.category}</span>
                                         <span className="text-xs text-muted-foreground">•</span>
+                                        <span className="text-xs text-muted-foreground">{transaction.account_name}</span>
+                                        <span className="text-xs text-muted-foreground">•</span>
                                         <span className="text-xs text-muted-foreground">{formatDate(transaction.created_at)}</span>
                                     </div>
                                 </div>

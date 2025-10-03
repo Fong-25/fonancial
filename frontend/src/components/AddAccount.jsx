@@ -116,7 +116,7 @@ export default function AddAccount({ user, onAccountAdded }) {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full bg-foreground hover:bg-foreground/90 text-background font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full bg-neutral-800 transition-all hover:bg-neutral-600 active:bg-neutral-700 text-zinc-200 font-medium py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {/* Add Transaction */}
                                 {isLoading ? (

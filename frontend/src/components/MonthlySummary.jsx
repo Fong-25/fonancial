@@ -26,7 +26,7 @@ export default function MonthlySummary({ summary }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Income */}
-                <div className="bg-success/10 border border-success/20 rounded-lg p-4">
+                <div className="bg-green-50 border border-success/20 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-5 h-5 text-success text-green-500" />
                         <span className="text-sm font-medium text-foreground">Income</span>
@@ -37,7 +37,7 @@ export default function MonthlySummary({ summary }) {
                 </div>
 
                 {/* Expenses */}
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <div className="bg-red-50 border border-destructive/20 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingDown className="w-5 h-5 text-destructive text-red-500" />
                         <span className="text-sm font-medium text-foreground">Expenses</span>
@@ -50,8 +50,8 @@ export default function MonthlySummary({ summary }) {
                 {/* Net Income */}
                 <div
                     className={`
-                        ${isPositive ? "bg-success/10 border-success/20" : "bg-destructive/10 border-destructive/20"
-                        } border rouded-lg p-4`}
+                        ${isPositive ? "bg-green-200 border-success/20" : "bg-red-200 border-destructive/20"
+                        } border rounded-lg p-4`}
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <PiggyBank className={`w-5 h-5 ${isPositive ? "text-success" : "text-destructive"}`} />
