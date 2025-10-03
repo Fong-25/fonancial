@@ -1,65 +1,77 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Plus, X } from "lucide-react"
 import toast from "react-hot-toast"
+import { Loader2 } from "lucide-react"
 
 // Placeholder accounts data based on database schema
-const accounts = [
-    { id: 1, name: "Main Checking" },
-    { id: 2, name: "Savings Account" },
-    { id: 3, name: "Credit Card" },
-]
+// const accounts = [
+//     { id: 1, name: "Main Checking" },
+//     { id: 2, name: "Savings Account" },
+//     { id: 3, name: "Credit Card" },
+// ]
 
 const EXPENSE_CATEGORIES = ["Food", "Rent", "Shopping", "Transport", "Other"]
 const INCOME_CATEGORIES = ["Salary", "Scholarship", "Parents", "Other"]
 
-export default function AddTransaction() {
+export default function AddTransaction({ user, accounts, onTransactionAdded }) {
+    const [isLoading, setIsLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const [formData, setFormData] = useState({
         type: "expense",
         category: "",
         amount: "",
         description: "",
-        account_id: accounts[0].id,
+        accountId: accounts[0].id,
     })
 
     const categories = formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsLoading(true)
 
-        // Validate form
-        if (!formData.category || !formData.amount || !formData.description) {
-            toast.error("Please fill in all fields")
-            return
+        try {
+            // Validate form
+            if (!formData.category || !formData.amount || !formData.description) {
+                toast.error("Please fill in all fields")
+                return
+            }
+            // Console log instead of making request
+            console.log("New Transaction:")
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            })
+            const data = await res.json()
+
+            if (res.ok) {
+                toast.success(`${formData.type === "expense" ? "Expense" : "Income"} added successfully!`)
+                if (onTransactionAdded) {
+                    await onTransactionAdded()
+                }
+
+                setIsOpen(false)
+            } else {
+                toast.error(data.message || "Add transaction failed")
+            }
+
+            // Reset form
+            setFormData({
+                type: "expense",
+                category: "",
+                amount: "",
+                description: "",
+                account_id: accounts[0].id,
+            })
+        } catch (error) {
+            toast.error("Add transaction error:", error)
+        } finally {
+            setIsLoading(false)
         }
-
-        // Create transaction object matching database schema
-        const transaction = {
-            id: Date.now(), // Mock ID
-            user_id: 1, // Mock user ID
-            account_id: formData.account_id,
-            type: formData.type,
-            category: formData.category,
-            amount: Number.parseFloat(formData.amount),
-            description: formData.description,
-            created_at: new Date().toISOString(),
-        }
-
-        // Console log instead of making request
-        console.log("[v0] New Transaction:", transaction)
-
-        toast.success(`${formData.type === "expense" ? "Expense" : "Income"} added successfully!`)
-
-        // Reset form
-        setFormData({
-            type: "expense",
-            category: "",
-            amount: "",
-            description: "",
-            account_id: accounts[0].id,
-        })
         setIsOpen(false)
     }
 
@@ -92,6 +104,14 @@ export default function AddTransaction() {
                         // Close modal when clicking on overlay
                         if (e.target === e.currentTarget) {
                             setIsOpen(false)
+                            // Reset form
+                            setFormData({
+                                type: "expense",
+                                category: "",
+                                amount: "",
+                                description: "",
+                                account_id: accounts[0].id,
+                            })
                         }
                     }}
                 >
@@ -185,7 +205,7 @@ export default function AddTransaction() {
                                     Amount
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">₫</span>
                                     <input
                                         type="number"
                                         id="amount"
@@ -195,7 +215,7 @@ export default function AddTransaction() {
                                         step="0.01"
                                         min="0"
                                         required
-                                        placeholder="0.00"
+                                        placeholder="100000"
                                         className="w-full pl-8 pr-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                 </div>
@@ -221,9 +241,18 @@ export default function AddTransaction() {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-foreground hover:bg-foreground/90 text-background font-medium py-3 rounded-lg transition-colors"
+                                disabled={isLoading}
+                                className="w-full bg-foreground hover:bg-foreground/90 text-background font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                Add Transaction
+                                {/* Add Transaction */}
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Adding Transaction...
+                                    </>
+                                ) : (
+                                    "Add Transaction"
+                                )}
                             </button>
                         </form>
                     </div>

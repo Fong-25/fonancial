@@ -11,24 +11,25 @@ export default function Dashboard() {
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const fetchDashboard = async () => {
-            try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard`, {
-                    credentials: "include",
-                })
-                if (res.ok) {
-                    const result = await res.json()
-                    setData(result)
-                }
-            } catch (err) {
-                console.error("Dashboard fetch error:", err)
-            } finally {
-                setLoading(false)
+    const fetchDashboard = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const result = await res.json()
+                setData(result)
             }
+        } catch (err) {
+            console.error("Dashboard fetch error:", err)
+        } finally {
+            setLoading(false)
         }
+    }
+    useEffect(() => {
         fetchDashboard()
     }, [])
+
 
     if (loading) {
         return (
@@ -49,7 +50,7 @@ export default function Dashboard() {
                 <MonthlySummary summary={data.summary} />
                 <RecentTransactions transactions={data.recentTransactions} />
             </div>
-            <AddTransaction />
+            <AddTransaction accounts={data.accounts} user={data.user} onTransactionAdded={fetchDashboard} />
         </div>
     )
 
