@@ -4,6 +4,7 @@ import MonthlySummary from "../components/MonthlySummary.jsx"
 import RecentTransactions from "../components/RecentTransactions.jsx"
 import { useEffect, useState } from "react"
 import { useUser } from '../components/ProtectedRoute.jsx'
+import AddTransaction from "../components/AddTransaction.jsx"
 
 export default function Dashboard() {
     const user = useUser()
@@ -48,6 +49,7 @@ export default function Dashboard() {
                 <MonthlySummary summary={data.summary} />
                 <RecentTransactions transactions={data.recentTransactions} />
             </div>
+            <AddTransaction />
         </div>
     )
 
