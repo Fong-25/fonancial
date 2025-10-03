@@ -13,6 +13,7 @@ export default function MonthlySummary({ summary }) {
     const expenses = summary.expense || 0
     const netIncome = income - expenses
     const savingsRate = income > 0 ? ((netIncome / income) * 100).toFixed(1) : 0
+    const isPositive = netIncome >= 0
 
     return (
         <div className="bg-card border border-border rounded-lg p-6">
@@ -27,7 +28,7 @@ export default function MonthlySummary({ summary }) {
                 {/* Income */}
                 <div className="bg-success/10 border border-success/20 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-5 h-5 text-success" />
+                        <TrendingUp className="w-5 h-5 text-success text-green-500" />
                         <span className="text-sm font-medium text-foreground">Income</span>
                     </div>
                     <p className="text-2xl font-bold text-success">
@@ -38,7 +39,7 @@ export default function MonthlySummary({ summary }) {
                 {/* Expenses */}
                 <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <TrendingDown className="w-5 h-5 text-destructive" />
+                        <TrendingDown className="w-5 h-5 text-destructive text-red-500" />
                         <span className="text-sm font-medium text-foreground">Expenses</span>
                     </div>
                     <p className="text-2xl font-bold text-destructive">
@@ -47,13 +48,20 @@ export default function MonthlySummary({ summary }) {
                 </div>
 
                 {/* Net Income */}
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div
+                    className={`
+                        ${isPositive ? "bg-success/10 border-success/20" : "bg-destructive/10 border-destructive/20"
+                        } border rouded-lg p-4`}
+                >
                     <div className="flex items-center gap-2 mb-2">
-                        <PiggyBank className="w-5 h-5 text-primary" />
+                        <PiggyBank className={`w-5 h-5 ${isPositive ? "text-success" : "text-destructive"}`} />
                         <span className="text-sm font-medium text-foreground">Net Income</span>
                     </div>
-                    <p className="text-2xl font-bold text-primary">
+                    {/* <p className="text-2xl font-bold text-primary">
                         {netIncome.toLocaleString("vi-VN")} ₫
+                    </p> */}
+                    <p className={`text-2xl font-bold ${isPositive ? "text-success" : "text-destructive"}`}>
+                        {isPositive ? "+" : "-"}{Math.abs(netIncome).toLocaleString("vi-VN")}
                     </p>
                     <p className="text-xs text-foreground mt-1">{savingsRate}% savings rate</p>
                 </div>

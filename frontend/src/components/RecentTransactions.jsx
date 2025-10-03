@@ -71,9 +71,9 @@ export default function RecentTransactions({ transactions }) {
                             >
                                 <div className={`p-2 rounded-lg ${isIncome ? "bg-success/10" : "bg-destructive/10"}`}>
                                     {isIncome ? (
-                                        <ArrowUpRight className="w-5 h-5 text-success" />
+                                        <ArrowUpRight className="w-5 h-5 text-success text-green-500" />
                                     ) : (
-                                        <ArrowDownRight className="w-5 h-5 text-destructive" />
+                                        <ArrowDownRight className="w-5 h-5 text-destructive text-red-500" />
                                     )}
                                 </div>
 
