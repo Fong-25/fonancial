@@ -30,6 +30,12 @@ export default function ProtectedRoute({ children }) {
         verifyUser()
     }, [])
 
+    useEffect(() => {
+        if (isAuthenticated === false) {
+            navigate('/login')
+        }
+    }, [isAuthenticated, navigate])
+
     if (isAuthenticated === null) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -38,7 +44,7 @@ export default function ProtectedRoute({ children }) {
         )
     }
     if (!isAuthenticated) {
-        navigate('/login')
+        // navigate('/login')
         return null
     }
     return (
