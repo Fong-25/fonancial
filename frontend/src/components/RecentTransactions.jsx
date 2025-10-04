@@ -49,10 +49,16 @@ import { ArrowUpRight, ArrowDownRight, ShoppingBag, Home, Car, Coffee, Briefcase
 //     },
 // ]
 
-export default function RecentTransactions({ transactions }) {
+export default function RecentTransactions({ transactions, categories }) {
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })
     }
+
+    const getCategoryDetails = (categoryKey) => {
+        const category = categories.all.find(cat => cat.key === categoryKey)
+        return category || { label: categoryKey, icon: "🪙" }
+    }
+
 
     return (
         <div className="bg-card border border-border rounded-lg p-6">
@@ -64,6 +70,7 @@ export default function RecentTransactions({ transactions }) {
                 ) : (
                     transactions.map((transaction) => {
                         const isIncome = transaction.type === "income"
+                        const categoryDetails = getCategoryDetails(transaction.category)
                         return (
                             <div
                                 key={transaction.id}
@@ -78,9 +85,9 @@ export default function RecentTransactions({ transactions }) {
                                 </div>
 
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-foreground truncate">{transaction.description || transaction.category}</p>
+                                    <p className="font-medium text-foreground truncate">{transaction.description || categoryDetails.label}</p>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className="text-xs text-muted-foreground">{transaction.category}</span>
+                                        <span className="text-xs text-muted-foreground">{categoryDetails.icon} {categoryDetails.label}</span>
                                         <span className="text-xs text-muted-foreground">•</span>
                                         <span className="text-xs text-muted-foreground">{transaction.account_name}</span>
                                         <span className="text-xs text-muted-foreground">•</span>

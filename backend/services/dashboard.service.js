@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { CATEGORIES } from '../constants/categories.js'
 
 export const getDashboardData = async (userId) => {
     // User info
@@ -41,5 +42,20 @@ export const getDashboardData = async (userId) => {
         [userId]
     );
 
-    return { user, accounts, totalBalance, summary, recentTransactions: trxRes.rows };
+    // Separate categories by type
+    const expenseCategories = CATEGORIES.filter(cat => cat.type === 'expense');
+    const incomeCategories = CATEGORIES.filter(cat => cat.type === 'income');
+
+    return {
+        user,
+        accounts,
+        totalBalance,
+        summary,
+        recentTransactions: trxRes.rows,
+        categories: {
+            expense: expenseCategories,
+            income: incomeCategories,
+            all: CATEGORIES
+        }
+    };
 };

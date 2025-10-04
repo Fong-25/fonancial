@@ -15,7 +15,7 @@ import { Loader2 } from "lucide-react"
 const EXPENSE_CATEGORIES = ["Food", "Rent", "Shopping", "Transport", "Other"]
 const INCOME_CATEGORIES = ["Salary", "Scholarship", "Parents", "Other"]
 
-export default function AddTransaction({ user, accounts, onTransactionAdded }) {
+export default function AddTransaction({ user, accounts, categories, onTransactionAdded }) {
     const [isLoading, setIsLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const [formData, setFormData] = useState({
@@ -26,7 +26,9 @@ export default function AddTransaction({ user, accounts, onTransactionAdded }) {
         accountId: accounts[0].id,
     })
 
-    const categories = formData.type === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+    const currentCategories = formData.type === "expense"
+        ? categories.expense
+        : categories.income
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -38,8 +40,6 @@ export default function AddTransaction({ user, accounts, onTransactionAdded }) {
                 toast.error("Please fill in all fields")
                 return
             }
-            // Console log instead of making request
-            console.log("New Transaction:")
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
                 method: "POST",
                 credentials: "include",
@@ -170,9 +170,9 @@ export default function AddTransaction({ user, accounts, onTransactionAdded }) {
                                     className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 >
                                     <option value="">Select a category</option>
-                                    {categories.map((cat) => (
-                                        <option key={cat} value={cat}>
-                                            {cat}
+                                    {currentCategories.map((cat) => (
+                                        <option key={cat.key} value={cat.key}>
+                                            {cat.icon} {cat.label}
                                         </option>
                                     ))}
                                 </select>
