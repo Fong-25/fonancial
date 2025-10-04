@@ -30,7 +30,7 @@ export default function BalanceCard({ accounts, totalBalance }) {
                                 <span className="font-medium text-foreground">{account.name}</span>
                             </div>
                             <span className={`font-semibold ${isNegative ? "text-destructive" : "text-foreground"}`}>
-                                {account.balance.toLocaleString("vi-VN")} ₫
+                                {Number(account.balance).toLocaleString("vi-VN")} ₫
                             </span>
                         </div>
                     )

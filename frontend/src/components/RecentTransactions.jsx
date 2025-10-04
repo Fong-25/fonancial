@@ -90,7 +90,7 @@ export default function RecentTransactions({ transactions }) {
 
                                 <div className="flex items-center gap-1">
                                     <span className={`font-semibold ${isIncome ? "text-success" : "text-destructive"}`}>
-                                        {isIncome ? "+" : "-"}{transaction.amount.toLocaleString("vi-VN")} ₫
+                                        {isIncome ? "+" : "-"}{Number(transaction.amount).toLocaleString("vi-VN")} ₫
                                     </span>
                                 </div>
                             </div>
