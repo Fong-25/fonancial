@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useUser } from '../components/ProtectedRoute.jsx'
 import AddTransaction from "../components/AddTransaction.jsx"
 import AddAccount from "../components/AddAccount.jsx"
+import BudgetTracker from "../components/BudgetTracker.jsx"
 
 export default function Dashboard() {
     const user = useUser()
@@ -49,6 +50,7 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
                 <BalanceCard accounts={data.accounts} totalBalance={data.totalBalance} />
                 <MonthlySummary summary={data.summary} />
+                <BudgetTracker />
                 <RecentTransactions categories={data.categories} transactions={data.recentTransactions} />
             </div>
             <AddTransaction accounts={data.accounts} user={data.user} categories={data.categories} onTransactionAdded={fetchDashboard} />
