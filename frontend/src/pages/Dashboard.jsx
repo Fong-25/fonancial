@@ -50,7 +50,7 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
                 <BalanceCard accounts={data.accounts} totalBalance={data.totalBalance} />
                 <MonthlySummary summary={data.summary} />
-                <BudgetTracker />
+                <BudgetTracker budgetData={data.budget} onBudgetUpdated={fetchDashboard} />
                 <RecentTransactions categories={data.categories} transactions={data.recentTransactions} />
             </div>
             <AddTransaction accounts={data.accounts} user={data.user} categories={data.categories} onTransactionAdded={fetchDashboard} />

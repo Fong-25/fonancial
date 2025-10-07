@@ -4,17 +4,16 @@ import { useState } from "react"
 import { TrendingUp, X, Edit2 } from "lucide-react"
 import toast from "react-hot-toast"
 
-export default function () {
+export default function ({ budgetData, onBudgetUpdated }) {
     const currentMonth = new Date().toLocaleString("vi-VN", { month: "long" })
     const currentYear = new Date().getFullYear
 
-    const [hasBudget, setHadBudget] = useState(true)
-    const [budgetAmount, setBudgetAmount] = useState(5000000)
     const [showEditForm, setShowEditForm] = useState(false)
     const [newBudgetAmount, setNewBudgetAmount] = useState()
-
-    const currentExpenses = 3200000
-
+    const [isLoading, setIsLoading] = useState(false)
+    const hasBudget = budgetData?.totalBudget > 0
+    const budgetAmount = budgetData?.totalBudget || 0
+    const currentExpenses = budgetData?.totalSpent || 0
     const progressPercentage = (currentExpenses / budgetAmount) * 100
 
     const getProgressColor = () => {
@@ -31,7 +30,7 @@ export default function () {
         return "text-red-500"
     }
 
-    const handleSetBudget = (e) => {
+    const handleSubmitBudget = async (e) => {
         e.preventDefault()
         const amount = Number.parseFloat(newBudgetAmount)
 
@@ -40,45 +39,36 @@ export default function () {
             return
         }
 
-        const budgetData = {
-            user_id: 1,
-            amount: amount,
-            month: new Date().getMonth() + 1,
-            year: currentYear,
-            created_at: new Date().toISOString(),
-        }
+        setIsLoading(true)
 
-        console.log("Setting budget:", budgetData)
-        setBudgetAmount(amount)
-        setHasBudget(true)
-        setNewBudgetAmount("")
-        toast.success("Budget set successfully!")
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/budget`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ amount }),
+            })
+
+            if (res.ok) {
+                toast.success(hasBudget ? "Budget updated successfully!" : "Budget set successfully!")
+                setNewBudgetAmount("")
+                setShowEditForm(false)
+                if (onBudgetUpdated) {
+                    onBudgetUpdated()
+                }
+            } else {
+                const error = await res.json()
+                toast.error(error.message || "Failed to set budget")
+            }
+        } catch (error) {
+            console.error("Budget submission error:", error)
+            toast.error("An error occurred. Please try again.")
+        } finally {
+            setIsLoading(false)
+        }
     }
-
-    const handleUpdateBudget = (e) => {
-        e.preventDefault()
-        const amount = Number.parseFloat(newBudgetAmount)
-
-        if (!amount || amount <= 0) {
-            toast.error("Please enter a valid budget amount")
-            return
-        }
-
-        const budgetData = {
-            user_id: 1,
-            amount: amount,
-            month: new Date().getMonth() + 1,
-            year: currentYear,
-            created_at: new Date().toISOString(),
-        }
-
-        console.log("Updating budget:", budgetData)
-        setBudgetAmount(amount)
-        setShowEditForm(false)
-        setNewBudgetAmount("")
-        toast.success("Budget updated successfully!")
-    }
-
     // If no budget exists, show form to set one
     if (!hasBudget) {
         return (
@@ -93,7 +83,7 @@ export default function () {
                         No budget set for {currentMonth} {currentYear}
                     </p>
 
-                    <form onSubmit={handleSetBudget} className="max-w-sm mx-auto">
+                    <form onSubmit={handleSubmitBudget} className="max-w-sm mx-auto">
                         <label className="block text-sm font-medium text-foreground mb-2">Set Monthly Budget</label>
                         <div className="flex gap-2">
                             <div className="relative flex-1">
@@ -105,13 +95,15 @@ export default function () {
                                     placeholder="0.00"
                                     className="w-full pl-8 pr-4 py-2.5 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground"
                                     required
+                                    disabled={isLoading}
                                 />
                             </div>
                             <button
                                 type="submit"
                                 className="px-6 py-2.5 bg-accent text-accent-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+                                disabled={isLoading}
                             >
-                                Set Budget
+                                {isLoading ? "Setting..." : "Set Budget"}
                             </button>
                         </div>
                     </form>
@@ -200,7 +192,7 @@ export default function () {
                             </button>
                         </div>
 
-                        <form onSubmit={handleUpdateBudget}>
+                        <form onSubmit={handleSubmitBudget}>
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-foreground mb-2">
                                     Monthly Budget for {currentMonth} {currentYear}
@@ -214,6 +206,7 @@ export default function () {
                                         placeholder={budgetAmount.toString()}
                                         className="w-full pl-8 pr-4 py-2.5 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-foreground"
                                         required
+                                        disabled={isLoading}
                                     />
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-2">Current budget: {budgetAmount.toLocaleString()} đ</p>
@@ -233,8 +226,9 @@ export default function () {
                                 <button
                                     type="submit"
                                     className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
+                                    disabled={isLoading}
                                 >
-                                    Update Budget
+                                    {isLoading ? "Updating..." : "Update Budget"}
                                 </button>
                             </div>
                         </form>
