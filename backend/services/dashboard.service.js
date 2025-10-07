@@ -1,5 +1,6 @@
 import pool from '../config/db.js';
 import { CATEGORIES } from '../constants/categories.js'
+import { getCurrentBudget, getMonthlySpent } from "./budget.service.js"
 
 export const getDashboardData = async (userId) => {
     // User info
@@ -46,6 +47,10 @@ export const getDashboardData = async (userId) => {
     const expenseCategories = CATEGORIES.filter(cat => cat.type === 'expense');
     const incomeCategories = CATEGORIES.filter(cat => cat.type === 'income');
 
+    const budget = await getCurrentBudget(userId)
+    const totalBudget = budget?.amount || 0
+    const totalSpent = await getMonthlySpent(userId)
+
     return {
         user,
         accounts,
@@ -56,6 +61,7 @@ export const getDashboardData = async (userId) => {
             expense: expenseCategories,
             income: incomeCategories,
             all: CATEGORIES
-        }
+        },
+        budget: { totalBudget, totalSpent }
     };
 };
