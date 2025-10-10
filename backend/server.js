@@ -16,7 +16,7 @@ const app = express()
 const __dirname = path.resolve()
 
 app.use(cors({
-    origin: ["http://localhost:5173", "https://fong-fonancial.onrender.com", "capacitor://localhost", "http://localhost",],
+    origin: ["http://localhost:5173", "https://fong-fonancial.onrender.com", "capacitor://localhost", "http://localhost", "http://localhost"],
     credentials: true,
 }))
 
