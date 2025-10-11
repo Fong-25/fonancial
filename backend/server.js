@@ -8,6 +8,7 @@ import accountRoutes from './routes/account.route.js'
 import transactionRoutes from './routes/transaction.route.js'
 import dashboardRoutes from './routes/dashboard.route.js'
 import budgetRoutes from './routes/budget.route.js'
+import historyRoute from './routes/history.route.js'
 import path from 'path'
 
 dotenv.config()
@@ -64,6 +65,7 @@ app.use('/api/accounts', accountRoutes)
 app.use('/api/transactions', transactionRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/budget', budgetRoutes)
+app.use('/api/history', historyRoute)
 
 app.listen(PORT, () => {
     connectDB()
