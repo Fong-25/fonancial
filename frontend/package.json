@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@tailwindcss/vite": "^4.1.14",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
