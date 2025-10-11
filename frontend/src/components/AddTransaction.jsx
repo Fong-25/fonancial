@@ -12,9 +12,6 @@ import { Loader2 } from "lucide-react"
 //     { id: 3, name: "Credit Card" },
 // ]
 
-const EXPENSE_CATEGORIES = ["Food", "Rent", "Shopping", "Transport", "Other"]
-const INCOME_CATEGORIES = ["Salary", "Scholarship", "Parents", "Other"]
-
 export default function AddTransaction({ user, accounts, categories, onTransactionAdded }) {
     const [isLoading, setIsLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
@@ -40,7 +37,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                 toast.error("Please fill in all fields")
                 return
             }
-            if (!accountId) return toast.error('No account found')
+            console.log(formData)
+            if (!formData.accountId) return toast.error('No account found')
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
                 method: "POST",
                 credentials: "include",
@@ -66,7 +64,7 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                 category: "",
                 amount: "",
                 description: "",
-                account_id: accounts[0].id,
+                accountId: accounts[0].id,
             })
         } catch (error) {
             toast.error("Add transaction error:", error)
@@ -111,7 +109,7 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                                 category: "",
                                 amount: "",
                                 description: "",
-                                account_id: accounts[0].id,
+                                accountId: accounts[0].id,
                             })
                         }
                     }}
@@ -181,13 +179,13 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
 
                             {/* Account */}
                             <div>
-                                <label htmlFor="account_id" className="block text-sm font-medium text-foreground mb-2">
+                                <label htmlFor="accountId" className="block text-sm font-medium text-foreground mb-2">
                                     Account
                                 </label>
                                 <select
-                                    id="account_id"
-                                    name="account_id"
-                                    value={formData.account_id}
+                                    id="accountId"
+                                    name="accountId"
+                                    value={formData.accountId}
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"

@@ -19,6 +19,8 @@ export default function Login() {
         setIsLoading(true)
 
         try {
+            console.log('API URL:', import.meta.env.VITE_API_URL)
+            console.log('Environment:', import.meta.env.MODE)
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                 method: "POST",
                 credentials: "include", // important for JWT cookies
