@@ -14,3 +14,16 @@ export const getHistoryData = async (userId) => {
     );
     return allTransactions.rows
 }
+
+export const getCategoriesData = async () => {
+    const expenseCategories = CATEGORIES.filter(cat => cat.type === 'expense');
+    const incomeCategories = CATEGORIES.filter(cat => cat.type === 'income');
+
+    return {
+        categories: {
+            expense: expenseCategories,
+            income: incomeCategories,
+            all: CATEGORIES
+        },
+    }
+}
