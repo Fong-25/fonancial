@@ -71,10 +71,12 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' })
         }
-        const token = jwt.sign({ userId: user.id, }, JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ userId: user.id, }, JWT_SECRET, { expiresIn: '10d' })
 
         res.cookie('token', token, {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
             path: '/',
             maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
         })
@@ -92,6 +94,8 @@ export const logout = async (req, res) => {
         }
         res.clearCookie('token', {
             httpOnly: true,
+            secure: true,
+            sameSite: 'none',
             path: '/'
         })
         return res.status(200).json({ message: 'Logged out successfully' })
