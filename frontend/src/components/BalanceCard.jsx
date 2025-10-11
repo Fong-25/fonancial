@@ -39,7 +39,7 @@ export default function BalanceCard({ accounts, totalBalance }) {
                     return (
                         <div
                             key={account.id}
-                            className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
+                            className="flex items-center justify-between p-0 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="bg-primary/10 p-2 rounded-lg">

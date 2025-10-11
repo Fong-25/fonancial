@@ -12,7 +12,7 @@ export default function ({ budgetData, onBudgetUpdated }) {
     const [newBudgetAmount, setNewBudgetAmount] = useState()
     const [isLoading, setIsLoading] = useState(false)
     const hasBudget = budgetData?.totalBudget > 0
-    const budgetAmount = budgetData?.totalBudget || 0
+    const budgetAmount = Number(budgetData?.totalBudget) || 0
     const currentExpenses = budgetData?.totalSpent || 0
     const progressPercentage = (currentExpenses / budgetAmount) * 100
 
@@ -153,7 +153,7 @@ export default function ({ budgetData, onBudgetUpdated }) {
                     </div>
                     <div>
                         <span className="text-muted-foreground">Budget: </span>
-                        <span className="font-semibold text-foreground">{budgetAmount.toLocaleString()} đ</span>
+                        <span className="font-semibold text-foreground">{(budgetAmount.toLocaleString())} đ</span>
                     </div>
                 </div>
 

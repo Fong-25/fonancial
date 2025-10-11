@@ -50,9 +50,20 @@ import { ArrowUpRight, ArrowDownRight, ShoppingBag, Home, Car, Coffee, Briefcase
 // ]
 
 export default function RecentTransactions({ transactions, categories }) {
+    // const formatDate = (dateString) => {
+    //     return new Date(dateString).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })
+    // }
+
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })
+        const date = new Date(dateString);
+        if (isNaN(date)) return "Invalid date";
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+
+        return `${day}/${month}`;
     }
+
 
     const getCategoryDetails = (categoryKey) => {
         const category = categories.all.find(cat => cat.key === categoryKey)
@@ -61,10 +72,10 @@ export default function RecentTransactions({ transactions, categories }) {
 
 
     return (
-        <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-6">Recent Transactions</h2>
+        <div className="bg-card border border-border rounded-lg p-3">
+            <h2 className="text-lg font-semibold text-foreground mb-6 transform m-2">Recent Transactions</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-4 m-3">
                 {transactions.length === 0 ? (
                     <p className="text-muted-foreground">No transactions yet</p>
                 ) : (
@@ -74,7 +85,7 @@ export default function RecentTransactions({ transactions, categories }) {
                         return (
                             <div
                                 key={transaction.id}
-                                className="flex items-center gap-4 p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                                className="flex items-center gap-1 p-0 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors -translate-x-2"
                             >
                                 <div className={`p-2 rounded-lg ${isIncome ? "bg-success/10" : "bg-destructive/10"}`}>
                                     {isIncome ? (
@@ -86,7 +97,7 @@ export default function RecentTransactions({ transactions, categories }) {
 
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-foreground truncate">{transaction.description || categoryDetails.label}</p>
-                                    <div className="flex items-center gap-2 mt-1">
+                                    <div className="flex items-center gap-1 mt-1">
                                         <span className="text-xs text-muted-foreground">{categoryDetails.icon} {categoryDetails.label}</span>
                                         <span className="text-xs text-muted-foreground">•</span>
                                         <span className="text-xs text-muted-foreground">{transaction.account_name}</span>
