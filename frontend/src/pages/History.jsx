@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, use } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Filter } from "lucide-react"
 import TransactionFilter from "../components/TransactionFilter"
@@ -8,6 +8,8 @@ import TransactionFilter from "../components/TransactionFilter"
 export default function History() {
     const navigate = useNavigate()
     const [showFilters, setShowFilters] = useState(false)
+    const [allTransactions, setAllTransactions] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
     const [filters, setFilters] = useState({
         account: "all",
         type: "all",
@@ -15,123 +17,28 @@ export default function History() {
         fromDate: "",
         toDate: "",
     })
+    const fetchHistory = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const allTransactions = await res.json()
+                setAllTransactions(allTransactions)
+                console.log("History data:", allTransactions)
+            }
+        } catch (err) {
+            console.error("Dashboard fetch error:", err)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
-    // Placeholder transaction data based on database schema
-    const allTransactions = [
-        {
-            id: 1,
-            user_id: 1,
-            account_id: 1,
-            account_name: "Card BIDV",
-            type: "expense",
-            category: "Food",
-            amount: 50000,
-            description: "Lunch at restaurant",
-            created_at: "2025-10-08T12:30:00",
-        },
-        {
-            id: 2,
-            user_id: 1,
-            account_id: 2,
-            account_name: "Cash",
-            type: "income",
-            category: "Salary",
-            amount: 100000,
-            description: "Monthly salary",
-            created_at: "2025-10-01T09:00:00",
-        },
-        {
-            id: 3,
-            user_id: 1,
-            account_id: 1,
-            account_name: "Card BIDV",
-            type: "expense",
-            category: "Transport",
-            amount: 25000,
-            description: "Taxi to work",
-            created_at: "2025-10-07T08:15:00",
-        },
-        {
-            id: 4,
-            user_id: 1,
-            account_id: 2,
-            account_name: "Cash",
-            type: "expense",
-            category: "Shopping",
-            amount: 150000,
-            description: "New clothes",
-            created_at: "2025-10-06T15:45:00",
-        },
-        {
-            id: 5,
-            user_id: 1,
-            account_id: 1,
-            account_name: "Card BIDV",
-            type: "income",
-            category: "Parents",
-            amount: 200000,
-            description: "Gift from parents",
-            created_at: "2025-10-05T10:00:00",
-        },
-        {
-            id: 6,
-            user_id: 1,
-            account_id: 2,
-            account_name: "Cash",
-            type: "expense",
-            category: "Rent",
-            amount: 300000,
-            description: "Monthly rent payment",
-            created_at: "2025-10-01T00:00:00",
-        },
-        {
-            id: 7,
-            user_id: 1,
-            account_id: 1,
-            account_name: "Card BIDV",
-            type: "expense",
-            category: "Food",
-            amount: 35000,
-            description: "Grocery shopping",
-            created_at: "2025-10-04T18:20:00",
-        },
-        {
-            id: 8,
-            user_id: 1,
-            account_id: 2,
-            account_name: "Cash",
-            type: "income",
-            category: "Scholarship",
-            amount: 500000,
-            description: "University scholarship",
-            created_at: "2025-10-03T14:00:00",
-        },
-        {
-            id: 9,
-            user_id: 1,
-            account_id: 1,
-            account_name: "Card BIDV",
-            type: "expense",
-            category: "Other",
-            amount: 75000,
-            description: "Medical checkup",
-            created_at: "2025-10-02T11:30:00",
-        },
-        {
-            id: 10,
-            user_id: 1,
-            account_id: 2,
-            account_name: "Cash",
-            type: "expense",
-            category: "Transport",
-            amount: 15000,
-            description: "Bus fare",
-            created_at: "2025-10-01T07:45:00",
-        },
-    ]
-
+    useEffect(() => {
+        fetchHistory()
+    }, [])
     // Filter transactions based on selected filters
-    const filteredTransactions = allTransactions.filter((transaction) => {
+    const filteredTransactions = allTransactions?.filter((transaction) => {
         const accountMatch = filters.account === "all" || transaction.account_name === filters.account
         const typeMatch = filters.type === "all" || transaction.type === filters.type
         const categoryMatch = filters.category === "all" || transaction.category === filters.category
@@ -171,6 +78,18 @@ export default function History() {
             Other: "📦",
         }
         return emojiMap[category] || "📦"
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            </div>
+        )
+    }
+
+    if (!allTransactions) {
+        return <p className="text-center text-red-500">Failed to load History</p>
     }
 
     return (
