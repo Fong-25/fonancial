@@ -27,3 +27,13 @@ export const getCategoriesData = async () => {
         },
     }
 }
+
+export const getAccountData = async (userId) => {
+    // Accounts
+    const accountsRes = await pool.query(
+        `SELECT id, name, balance FROM accounts WHERE user_id = $1`,
+        [userId]
+    );
+    const accounts = accountsRes.rows;
+    return accounts
+}
