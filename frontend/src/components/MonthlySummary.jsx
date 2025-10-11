@@ -1,13 +1,5 @@
 import { TrendingUp, TrendingDown, PiggyBank } from "lucide-react"
 
-// // Placeholder data based on database schema
-// const monthlyData = {
-//     income: 6500.0,
-//     expenses: 4774.6,
-//     month: "January",
-//     year: 2025,
-// }
-
 export default function MonthlySummary({ summary }) {
     const income = summary.income || 0
     const expenses = summary.expense || 0

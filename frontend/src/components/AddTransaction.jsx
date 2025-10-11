@@ -5,13 +5,6 @@ import { Plus, X } from "lucide-react"
 import toast from "react-hot-toast"
 import { Loader2 } from "lucide-react"
 
-// Placeholder accounts data based on database schema
-// const accounts = [
-//     { id: 1, name: "Main Checking" },
-//     { id: 2, name: "Savings Account" },
-//     { id: 3, name: "Credit Card" },
-// ]
-
 export default function AddTransaction({ user, accounts, categories, onTransactionAdded }) {
     const [isLoading, setIsLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
