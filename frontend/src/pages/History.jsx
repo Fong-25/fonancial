@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Filter } from "lucide-react"
 import TransactionFilter from "../components/TransactionFilter"
@@ -8,6 +8,7 @@ import TransactionFilter from "../components/TransactionFilter"
 export default function History() {
     const navigate = useNavigate()
     const [showFilters, setShowFilters] = useState(false)
+    const [isVisible, setIsVisible] = useState(false)
     const [allTransactions, setAllTransactions] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const [filters, setFilters] = useState({
@@ -19,7 +20,7 @@ export default function History() {
     })
     const fetchHistory = async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/history`, {
                 credentials: "include",
             })
             if (res.ok) {
@@ -37,6 +38,15 @@ export default function History() {
     useEffect(() => {
         fetchHistory()
     }, [])
+    useEffect(() => {
+        if (showFilters) {
+            setIsVisible(true)
+        } else {
+            // delay unmounting for smooth exit animation
+            const timer = setTimeout(() => setIsVisible(false), 350)
+            return () => clearTimeout(timer)
+        }
+    }, [showFilters])
     // Filter transactions based on selected filters
     const filteredTransactions = allTransactions?.filter((transaction) => {
         const accountMatch = filters.account === "all" || transaction.account_name === filters.account
@@ -121,11 +131,18 @@ export default function History() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Filter Component */}
-                {showFilters && (
-                    <div className="mb-6">
-                        <TransactionFilter filters={filters} setFilters={setFilters} />
-                    </div>
-                )}
+                <div
+                    className={`transition-all duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] overflow-hidden ${showFilters
+                            ? "opacity-100 translate-y-0 max-h-[1200px]"
+                            : "opacity-0 -translate-y-3 max-h-0"
+                        }`}
+                >
+                    {isVisible && (
+                        <div className="mb-6">
+                            <TransactionFilter filters={filters} setFilters={setFilters} />
+                        </div>
+                    )}
+                </div>
 
                 {/* Transaction Count */}
                 <div className="mb-4 text-sm text-muted-foreground">

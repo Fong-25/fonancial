@@ -1,15 +1,100 @@
-"use client"
+import { useState, useEffect } from "react"
 
 export default function TransactionFilter({ filters, setFilters }) {
-    const accounts = ["all", "Card BIDV", "Cash"]
     const types = ["all", "expense", "income"]
-    const categories = ["all", "Food", "Rent", "Shopping", "Transport", "Salary", "Scholarship", "Parents", "Other"]
+    const [isLoading, setIsLoading] = useState(true)
+    const [accounts, setAccounts] = useState([])
+    const [categoriesData, setCategoriesData] = useState(null)
 
     const handleFilterChange = (filterType, value) => {
-        setFilters((prev) => ({
-            ...prev,
-            [filterType]: value,
-        }))
+        setFilters((prev) => {
+            const newFilters = {
+                ...prev,
+                [filterType]: value,
+            }
+
+            // Reset category when type changes
+            if (filterType === "type") {
+                newFilters.category = "all"
+            }
+
+            return newFilters
+        })
+    }
+
+    const fetchCategories = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/categories`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setCategoriesData(data.categories)
+                console.log("Categories data:", data.categories)
+            }
+        } catch (err) {
+            console.error("Categories fetch error:", err)
+        }
+    }
+
+    const fetchAccounts = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/accounts`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const accountsData = await res.json()
+                // Add "all" option and extract account names
+                const accountNames = ["all", ...accountsData.map(acc => acc.name)]
+                setAccounts(accountNames)
+                console.log("Accounts data:", accountNames)
+            }
+        } catch (err) {
+            console.error("Accounts fetch error:", err)
+        }
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true)
+            await Promise.all([fetchCategories(), fetchAccounts()])
+            setIsLoading(false)
+        }
+        fetchData()
+    }, [])
+
+    // Get current categories based on selected type
+    const getCurrentCategories = () => {
+        if (!categoriesData) return ["all"]
+
+        let categoryList = []
+        if (filters.type === "expense") {
+            categoryList = categoriesData.expense
+        } else if (filters.type === "income") {
+            categoryList = categoriesData.income
+        } else {
+            // When type is "all", combine both expense and income categories
+            categoryList = categoriesData.all
+        }
+        console.log("Categories list:", categoryList)
+
+        return ["all", ...categoryList]
+    }
+
+    const currentCategories = getCurrentCategories()
+
+    if (isLoading) {
+        return (
+            <div className="bg-card rounded-xl border border-border p-6">
+                <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+            </div>
+        )
+    }
+
+    if (!accounts.length || !categoriesData) {
+        return <p className="text-center text-red-500">Failed to load filters</p>
     }
 
     return (
@@ -57,11 +142,17 @@ export default function TransactionFilter({ filters, setFilters }) {
                         onChange={(e) => handleFilterChange("category", e.target.value)}
                         className="w-full px-4 py-2.5 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                     >
-                        {categories.map((category) => (
-                            <option key={category} value={category}>
-                                {category === "all" ? "All Categories" : category}
-                            </option>
-                        ))}
+                        {currentCategories.map((category) =>
+                            typeof category === "string" ? (
+                                <option key={category} value={category}>
+                                    {category === "all" ? "All Categories" : category}
+                                </option>
+                            ) : (
+                                <option key={category.key} value={category.key}>
+                                    {category.label}
+                                </option>
+                            )
+                        )}
                     </select>
                 </div>
             </div>
