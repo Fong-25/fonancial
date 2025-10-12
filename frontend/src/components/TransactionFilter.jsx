@@ -30,7 +30,6 @@ export default function TransactionFilter({ filters, setFilters }) {
             if (res.ok) {
                 const data = await res.json()
                 setCategoriesData(data.categories)
-                console.log("Categories data:", data.categories)
             }
         } catch (err) {
             console.error("Categories fetch error:", err)
@@ -47,7 +46,6 @@ export default function TransactionFilter({ filters, setFilters }) {
                 // Add "all" option and extract account names
                 const accountNames = ["all", ...accountsData.map(acc => acc.name)]
                 setAccounts(accountNames)
-                console.log("Accounts data:", accountNames)
             }
         } catch (err) {
             console.error("Accounts fetch error:", err)
@@ -76,8 +74,6 @@ export default function TransactionFilter({ filters, setFilters }) {
             // When type is "all", combine both expense and income categories
             categoryList = categoriesData.all
         }
-        console.log("Categories list:", categoryList)
-
         return ["all", ...categoryList]
     }
 

@@ -10,6 +10,7 @@ export default function History() {
     const [showFilters, setShowFilters] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
     const [allTransactions, setAllTransactions] = useState([])
+    const [categoriesMap, setCategoriesMap] = useState({})
     const [isLoading, setIsLoading] = useState(true)
     const [filters, setFilters] = useState({
         account: "all",
@@ -18,6 +19,24 @@ export default function History() {
         fromDate: "",
         toDate: "",
     })
+    const fetchCategories = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/categories`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const data = await res.json()
+                // Create a map of category key -> category object
+                const map = {}
+                data.categories.all.forEach(cat => {
+                    map[cat.key] = cat
+                })
+                setCategoriesMap(map)
+            }
+        } catch (err) {
+            console.error("Categories fetch error:", err)
+        }
+    }
     const fetchHistory = async () => {
         try {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/history`, {
@@ -26,7 +45,6 @@ export default function History() {
             if (res.ok) {
                 const allTransactions = await res.json()
                 setAllTransactions(allTransactions)
-                console.log("History data:", allTransactions)
             }
         } catch (err) {
             console.error("Dashboard fetch error:", err)
@@ -37,6 +55,7 @@ export default function History() {
 
     useEffect(() => {
         fetchHistory()
+        fetchCategories()
     }, [])
     useEffect(() => {
         if (showFilters) {
@@ -62,32 +81,28 @@ export default function History() {
     })
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString)
-        return date.toLocaleDateString("vi-VN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+        const date = new Date(dateString);
+        if (isNaN(date)) return "Invalid date";
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     }
 
     const formatAmount = (amount) => {
         return new Intl.NumberFormat("vi-VN").format(amount)
     }
 
-    const getCategoryEmoji = (category) => {
-        const emojiMap = {
-            Food: "🍔",
-            Rent: "🏠",
-            Shopping: "🛍️",
-            Transport: "🚗",
-            Salary: "💼",
-            Scholarship: "🎓",
-            Parents: "👨‍👩‍👧",
-            Other: "📦",
+    const getCategoryInfo = (categoryKey) => {
+        const category = categoriesMap[categoryKey]
+        return {
+            icon: category?.icon || "📦",
+            label: category?.label || categoryKey
         }
-        return emojiMap[category] || "📦"
     }
 
     if (isLoading) {
@@ -133,8 +148,8 @@ export default function History() {
                 {/* Filter Component */}
                 <div
                     className={`transition-all duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] overflow-hidden ${showFilters
-                            ? "opacity-100 translate-y-0 max-h-[1200px]"
-                            : "opacity-0 -translate-y-3 max-h-0"
+                        ? "opacity-100 translate-y-0 max-h-[1200px]"
+                        : "opacity-0 -translate-y-3 max-h-0"
                         }`}
                 >
                     {isVisible && (
@@ -155,44 +170,47 @@ export default function History() {
                         <div className="p-12 text-center text-muted-foreground">No transactions found matching your filters</div>
                     ) : (
                         <div className="divide-y divide-border">
-                            {filteredTransactions.map((transaction) => (
-                                <div key={transaction.id} className="p-4 hover:bg-accent/50 transition-colors">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                                            <div className="text-2xl flex-shrink-0">{getCategoryEmoji(transaction.category)}</div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="font-semibold text-foreground truncate">{transaction.description}</h3>
-                                                <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-muted-foreground">
-                                                    <span>{transaction.category}</span>
-                                                    <span>•</span>
-                                                    <span>{transaction.account_name}</span>
-                                                    <span>•</span>
-                                                    <span>{formatDate(transaction.created_at)}</span>
+                            {filteredTransactions.map((transaction) => {
+                                const categoryInfo = getCategoryInfo(transaction.category)
+                                return (
+                                    <div key={transaction.id} className="p-4 hover:bg-accent/50 transition-colors">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                                                <div className="text-2xl flex-shrink-0">{categoryInfo.icon}</div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-semibold text-foreground truncate">{transaction.description}</h3>
+                                                    <div className="flex flex-wrap items-center gap-1 mt-1 text-sm text-muted-foreground">
+                                                        <span>{categoryInfo.label}</span>
+                                                        <span>•</span>
+                                                        <span>{transaction.account_name}</span>
+                                                        <span>•</span>
+                                                        <span>{formatDate(transaction.created_at)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex-shrink-0 text-right">
+                                                <div
+                                                    className={`text-lg font-bold ${transaction.type === "income"
+                                                        ? "text-emerald-600 dark:text-emerald-400"
+                                                        : "text-red-600 dark:text-red-400"
+                                                        }`}
+                                                >
+                                                    {transaction.type === "income" ? "+" : "-"}
+                                                    {formatAmount(transaction.amount)} đ
+                                                </div>
+                                                <div
+                                                    className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${transaction.type === "income"
+                                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                        }`}
+                                                >
+                                                    {transaction.type}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex-shrink-0 text-right">
-                                            <div
-                                                className={`text-lg font-bold ${transaction.type === "income"
-                                                    ? "text-emerald-600 dark:text-emerald-400"
-                                                    : "text-red-600 dark:text-red-400"
-                                                    }`}
-                                            >
-                                                {transaction.type === "income" ? "+" : "-"}
-                                                {formatAmount(transaction.amount)} đ
-                                            </div>
-                                            <div
-                                                className={`text-xs mt-1 px-2 py-0.5 rounded-full inline-block ${transaction.type === "income"
-                                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                                    }`}
-                                            >
-                                                {transaction.type}
-                                            </div>
-                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>
