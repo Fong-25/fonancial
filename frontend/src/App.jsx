@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp.jsx'
 import { Toaster } from 'react-hot-toast'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import History from './pages/History.jsx'
 
 export default function App() {
   return (
@@ -27,6 +28,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/history'
+            element={
+              <ProtectedRoute>
+                <History />
               </ProtectedRoute>
             }
           />

@@ -1,9 +1,12 @@
-import { ArrowUpRight, ArrowDownRight, ShoppingBag, Home, Car, Coffee, Briefcase } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, ShoppingBag, Home, Car, Coffee, Briefcase, History } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 
 export default function RecentTransactions({ transactions, categories }) {
     // const formatDate = (dateString) => {
     //     return new Date(dateString).toLocaleDateString("vi-VN", { day: "numeric", month: "short" })
     // }
+
+    const navigate = useNavigate()
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -24,7 +27,18 @@ export default function RecentTransactions({ transactions, categories }) {
 
     return (
         <div className="bg-card border border-border rounded-lg p-3">
-            <h2 className="text-lg font-semibold text-foreground mb-6 transform m-2">Recent Transactions</h2>
+            <div className="flex justify-between">
+
+                <h2 className="text-lg font-semibold text-foreground mb-6 transform m-2">Recent Transactions</h2>
+
+                <button
+                    onClick={() => navigate("/history")}
+                    className="flex items-center gap-1 px-2 py-1.5 text-sm bg-accent hover:bg-accent/80 rounded-lg transition-colors font-medium mb-6 m-2 ml-1"
+                >
+                    <History className="w-4 h-4" />
+                    View All History
+                </button>
+            </div>
 
             <div className="space-y-4 m-3">
                 {transactions.length === 0 ? (
