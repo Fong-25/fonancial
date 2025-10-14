@@ -34,11 +34,11 @@ export const getAccounts = async (req, res) => {
 
 export const getChart = async (req, res) => {
     try {
-        const userId = req.user.id
+        const userId = req.user.userId
         const data = await getChartData(userId)
         return res.status(200).json(data)
     } catch (error) {
-        console.error("Error fetching chart data")
+        console.error("Error fetching chart data", error)
         return res.status(500).json({ message: "Internal server error" })
     }
 }

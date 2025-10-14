@@ -43,21 +43,35 @@ export const getChartData = async (userId) => {
     const previousMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1;
     const previousYear = currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear();
 
+    const startOfPrevMonth = new Date(previousYear, previousMonth, 1)
+    const endOfPrevMonth = new Date(previousYear, previousMonth + 1, 1)
+
     const expenseCategoriesQuery = await pool.query(
         `SELECT category, SUM(amount) as total
-       FROM transactions
-       WHERE user_id = $1 
-       AND type = 'expense'
-       AND EXTRACT(MONTH FROM created_at) = $2
-       AND EXTRACT(YEAR FROM created_at) = $3
-       GROUP BY category
-       ORDER BY total DESC`,
-        [userId, previousMonth + 1, previousYear]
-    );
+        FROM transactions
+        WHERE user_id = $1
+        AND type = 'expense'
+        AND created_at >= $2
+        AND created_at < $3
+        GROUP BY category
+        ORDER BY total DESC`,
+        [userId, startOfPrevMonth, endOfPrevMonth]
+    )
 
-    // Get last 6 months income vs expense
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    // // Get last 6 months income vs expense
+    // const sixMonthsAgo = new Date();
+    // // Go back 5 months to get a total of 6 months including the current one
+    // sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    // // Set to the first day of that month
+    // sixMonthsAgo.setDate(1);
+    // // Reset time to the beginning of the day for an accurate range
+    // sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const endOfPeriod = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    endOfPeriod.setHours(0, 0, 0, 0);
+
+    const startOfPeriod = new Date(endOfPeriod);
+    startOfPeriod.setMonth(startOfPeriod.getMonth() - 6);
 
     const monthlyDataQuery = await pool.query(
         `SELECT 
@@ -68,9 +82,10 @@ export const getChartData = async (userId) => {
        FROM transactions
        WHERE user_id = $1 
        AND created_at >= $2
+       AND created_at < $3 
        GROUP BY year, month, type
        ORDER BY year, month`,
-        [userId, sixMonthsAgo]
+        [userId, startOfPeriod, endOfPeriod]
     );
 
     // Process monthly data into a more usable format
@@ -104,7 +119,7 @@ export const getChartData = async (userId) => {
         monthlyData,
         previousMonth: {
             month: previousMonth + 1,
-            year: previousYear + 1
+            year: previousYear
         }
     }
 }
