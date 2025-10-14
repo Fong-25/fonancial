@@ -123,8 +123,15 @@ export default function ChartsModal({ isOpen, onClose }) {
                 callbacks: {
                     label: (context) => {
                         const label = context.label || ""
-                        const value = new Intl.NumberFormat("vi-VN").format(context.parsed)
-                        return `${label}: ${value} đ`
+                        const currentValue = context.parsed;
+                        const formattedValue = new Intl.NumberFormat("vi-VN").format(currentValue);
+
+                        // Calculate the total of all dataset values
+                        const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+
+                        // Calculate the percentage
+                        const percentage = ((currentValue / total) * 100).toFixed(1);
+                        return `${label}: ${formattedValue} đ (${percentage}%)`;
                     },
                 },
             },

@@ -47,7 +47,7 @@ export default function History() {
             if (res.ok) {
                 const allTransactions = await res.json()
                 setAllTransactions(allTransactions)
-                console.log(allTransactions)
+                // console.log(allTransactions)
             }
         } catch (err) {
             console.error("Dashboard fetch error:", err)
