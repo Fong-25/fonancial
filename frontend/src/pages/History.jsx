@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Filter } from "lucide-react"
+import { ArrowLeft, Filter, BarChart3 } from "lucide-react"
 import TransactionFilter from "../components/TransactionFilter"
+import ChartsModal from '../components/ChartsModal.jsx'
 
 export default function History() {
     const navigate = useNavigate()
     const [showFilters, setShowFilters] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
+    const [showCharts, setShowCharts] = useState(false)
     const [allTransactions, setAllTransactions] = useState([])
     const [categoriesMap, setCategoriesMap] = useState({})
     const [isLoading, setIsLoading] = useState(true)
@@ -132,14 +134,23 @@ export default function History() {
                             </button>
                             <h1 className="text-2xl font-bold">Transaction History</h1>
                         </div>
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${showFilters ? "bg-primary text-primary-foreground" : "bg-accent hover:bg-accent/80"
-                                }`}
-                        >
-                            <Filter className="w-4 h-4" />
-                            Filters
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowCharts(true)}
+                                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base flex-shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                                <BarChart3 className="w-4 h-4" />
+                                <span className="hidden xs:inline">Charts</span>
+                            </button>
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${showFilters ? "bg-primary text-primary-foreground" : "bg-accent hover:bg-accent/80"
+                                    }`}
+                            >
+                                <Filter className="w-4 h-4" />
+                                Filters
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -215,6 +226,8 @@ export default function History() {
                     )}
                 </div>
             </main>
+
+            <ChartsModal isOpen={showCharts} onClose={() => setShowCharts(false)} />
         </div>
     )
 }

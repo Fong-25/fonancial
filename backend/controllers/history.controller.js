@@ -1,4 +1,4 @@
-import { getHistoryData, getCategoriesData, getAccountData } from "../services/history.service.js";
+import { getHistoryData, getCategoriesData, getAccountData, getChartData } from "../services/history.service.js";
 
 export const getHistory = async (req, res) => {
     try {
@@ -29,5 +29,16 @@ export const getAccounts = async (req, res) => {
     } catch (error) {
         console.error("History error 3:", error);
         return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getChart = async (req, res) => {
+    try {
+        const userId = req.user.userId
+        const data = await getChartData(userId)
+        return res.status(200).json(data)
+    } catch (error) {
+        console.error("Error fetching chart data", error)
+        return res.status(500).json({ message: "Internal server error" })
     }
 }
