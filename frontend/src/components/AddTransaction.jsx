@@ -109,8 +109,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                 >
                     <div className="bg-white bg-opacity-95 backdrop-blur-sm border border-border rounded-lg lg:w-[40vw] w-md max-h-75vh overflow-y-auto">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-border">
-                            <h2 className="text-xl font-semibold text-foreground">Add Transaction</h2>
+                        <div className="flex items-center justify-between p-2 pl-4 border-b border-border">
+                            <h2 className="text-lg font-semibold text-foreground">Add Transaction</h2>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -120,10 +120,10 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                         </div>
 
                         {/* Modal Body */}
-                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-2 pl-3 space-y-4">
                             {/* Transaction Type */}
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">Type</label>
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-1">Type</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
@@ -149,8 +149,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                             </div>
 
                             {/* Category */}
-                            <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="category" className="block text-sm font-medium text-foreground mb-1">
                                     Category
                                 </label>
                                 <select
@@ -171,8 +171,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                             </div>
 
                             {/* Account */}
-                            <div>
-                                <label htmlFor="accountId" className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="accountId" className="block text-sm font-medium text-foreground mb-1">
                                     Account
                                 </label>
                                 <select
@@ -192,8 +192,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                             </div>
 
                             {/* Amount */}
-                            <div>
-                                <label htmlFor="amount" className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="amount" className="block text-sm font-medium text-foreground mb-1">
                                     Amount
                                 </label>
                                 <div className="relative">
@@ -214,8 +214,8 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                             </div>
 
                             {/* Description */}
-                            <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label htmlFor="description" className="block text-sm font-medium text-foreground mb-1">
                                     Description
                                 </label>
                                 <textarea
@@ -226,7 +226,7 @@ export default function AddTransaction({ user, accounts, categories, onTransacti
                                     required
                                     rows="3"
                                     placeholder="Enter transaction details..."
-                                    className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                                    className="w-full px-4 py-2 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                                 />
                             </div>
 

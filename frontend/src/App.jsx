@@ -9,7 +9,7 @@ import History from './pages/History.jsx'
 
 export default function App() {
   return (
-    <>
+    <div className='min-h-screen bg-background'>
       <Router>
         <Toaster position="top-right" />
         <Routes>
@@ -41,6 +41,6 @@ export default function App() {
           />
         </Routes>
       </Router>
-    </>
+    </div>
   )
 }
