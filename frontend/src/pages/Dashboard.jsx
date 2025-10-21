@@ -7,6 +7,7 @@ import { useUser } from '../components/ProtectedRoute.jsx'
 import AddTransaction from "../components/AddTransaction.jsx"
 import AddAccount from "../components/AddAccount.jsx"
 import BudgetTracker from "../components/BudgetTracker.jsx"
+import TransferModal from "../components/TransferModal.jsx"
 
 export default function Dashboard() {
     const user = useUser()
@@ -55,6 +56,7 @@ export default function Dashboard() {
             </div>
             <AddTransaction accounts={data.accounts} user={data.user} categories={data.categories} onTransactionAdded={fetchDashboard} />
             <AddAccount user={data.user} onAccountAdded={fetchDashboard} />
+            <TransferModal onTransferCompleted={fetchDashboard} />
         </div>
     )
 
