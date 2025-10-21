@@ -1,23 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, ArrowRightLeft, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 
-const ACCOUNTS = [
-    { id: 1, name: "Main Checking", balance: 500000 },
-    { id: 2, name: "Cash", balance: 200000 },
-]
-
-export default function TransferModal() {
+export default function TransferModal({ onTransferCompleted }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [accounts, setAccounts] = useState([])
     const [formData, setFormData] = useState({
         fromAccount: "",
         toAccount: "",
         amount: "",
         description: "",
     })
+
+    // Fetch accounts when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchAccounts()
+        }
+    }, [isOpen])
+
+    const fetchAccounts = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts`, {
+                credentials: "include",
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setAccounts(data)
+                // Set default accounts
+                if (data.length >= 2) {
+                    setFormData(prev => ({
+                        ...prev,
+                        fromAccount: data[0].id.toString(),
+                        toAccount: data[1].id.toString(),
+                    }))
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch accounts:", error)
+            toast.error("Failed to load accounts")
+        }
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
@@ -46,36 +72,52 @@ export default function TransferModal() {
             return
         }
 
-        const fromAccount = ACCOUNTS.find((acc) => acc.id === Number.parseInt(formData.fromAccount))
-        if (fromAccount.balance < amount) {
+        const fromAccount = accounts.find((acc) => acc.id === Number.parseInt(formData.fromAccount))
+        if (Number(fromAccount.balance) < amount) {
             toast.error("Insufficient balance")
             return
         }
 
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
-            const transferData = {
-                fromAccountId: Number.parseInt(formData.fromAccount),
-                toAccountId: Number.parseInt(formData.toAccount),
-                amount: amount,
-                description: formData.description || "Transfer between accounts",
-                timestamp: new Date().toISOString(),
-            }
-
-            console.log("[v0] Transfer Data:", transferData)
-            toast.success("Transfer completed successfully!")
-
-            setFormData({
-                fromAccount: "",
-                toAccount: "",
-                amount: "",
-                description: "",
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions/transfer`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fromAccountId: Number.parseInt(formData.fromAccount),
+                    toAccountId: Number.parseInt(formData.toAccount),
+                    amount: amount,
+                    description: formData.description || "Transfer between accounts",
+                })
             })
-            setIsOpen(false)
+
+            const data = await res.json()
+
+            if (res.ok) {
+                toast.success("Transfer completed successfully!")
+                setFormData({
+                    fromAccount: "",
+                    toAccount: "",
+                    amount: "",
+                    description: "",
+                })
+                setIsOpen(false)
+
+                // Callback to refresh dashboard data
+                if (onTransferCompleted) {
+                    onTransferCompleted()
+                }
+            } else {
+                toast.error(data.message || "Transfer failed")
+            }
+        } catch (error) {
+            console.error("Transfer error:", error)
+            toast.error("An error occurred during transfer")
+        } finally {
             setIsLoading(false)
-        }, 1000)
+        }
     }
 
     return (
@@ -94,8 +136,8 @@ export default function TransferModal() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         {/* Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-border">
-                            <h2 className="text-xl font-semibold text-foreground">Transfer Money</h2>
+                        <div className="flex items-center justify-between p-3 pl-4 border-b border-border">
+                            <h2 className="text-lg font-semibold text-foreground">Transfer Money</h2>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -105,10 +147,10 @@ export default function TransferModal() {
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
                             {/* From Account */}
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-1">
                                     From Account
                                 </label>
                                 <select
@@ -119,17 +161,17 @@ export default function TransferModal() {
                                     className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
                                 >
                                     <option value="">Select account</option>
-                                    {ACCOUNTS.map((account) => (
+                                    {accounts.map((account) => (
                                         <option key={account.id} value={account.id}>
-                                            {account.name} - ${account.balance.toLocaleString()}
+                                            {account.name} - {Number(account.balance).toLocaleString()} ₫
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
                             {/* To Account */}
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-1">
                                     To Account
                                 </label>
                                 <select
@@ -140,17 +182,17 @@ export default function TransferModal() {
                                     className="w-full px-4 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
                                 >
                                     <option value="">Select account</option>
-                                    {ACCOUNTS.map((account) => (
+                                    {accounts.map((account) => (
                                         <option key={account.id} value={account.id}>
-                                            {account.name} - ${account.balance.toLocaleString()}
+                                            {account.name} - {Number(account.balance).toLocaleString()} ₫
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
                             {/* Amount */}
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-1">
                                     Amount
                                 </label>
                                 <div className="relative">
@@ -170,8 +212,8 @@ export default function TransferModal() {
                             </div>
 
                             {/* Description */}
-                            <div>
-                                <label className="block text-sm font-medium text-foreground mb-2">Description (Optional)</label>
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-1">Description (Optional)</label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
@@ -187,7 +229,7 @@ export default function TransferModal() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full mt-6 bg-neutral-800 transition-all hover:bg-neutral-600 active:bg-neutral-700 text-zinc-200 text-accent-foreground py-2.5 rounded-lg font-semibold hover:opacity-90  disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full mt-3 bg-neutral-800 transition-all hover:bg-neutral-600 active:bg-neutral-700 text-zinc-200 text-accent-foreground py-2.5 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {isLoading ? (
                                     <>
