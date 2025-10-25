@@ -14,5 +14,5 @@ export const CATEGORIES = [
     { key: "scholarship", label: "Scholarship", type: "income", icon: "🎓" },
     { key: "gift", label: "Gift", type: "income", icon: "🎁" },
     { key: "parents", label: "Parents", type: "income", icon: "🎁" },
-    { key: "other_income", label: "Other Income", type: "income", icon: "💰" },
+    { key: "other_income", label: "Other", type: "income", icon: "💰" },
 ]

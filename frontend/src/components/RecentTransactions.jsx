@@ -26,10 +26,10 @@ export default function RecentTransactions({ transactions, categories }) {
 
 
     return (
-        <div className="bg-card border border-border rounded-lg p-3">
-            <div className="flex justify-between">
+        <div className="bg-card border border-border rounded-lg lg:p-3 p-2">
+            <div className="flex justify-between mb-0">
 
-                <h2 className="text-lg font-semibold text-foreground mb-6 transform m-2">Recent Transactions</h2>
+                <h2 className="text-lg font-semibold text-foreground mb-0 transform m-2">Recent Transactions</h2>
 
                 <button
                     onClick={() => navigate("/history")}
@@ -40,7 +40,7 @@ export default function RecentTransactions({ transactions, categories }) {
                 </button>
             </div>
 
-            <div className="space-y-4 m-3">
+            <div className="space-y-4 m-3 mt-1 p-0">
                 {transactions.length === 0 ? (
                     <p className="text-muted-foreground">No transactions yet</p>
                 ) : (
@@ -52,7 +52,7 @@ export default function RecentTransactions({ transactions, categories }) {
                                 key={transaction.id}
                                 className="flex items-center gap-1 p-0 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors -translate-x-2"
                             >
-                                <div className={`p-2 rounded-lg ${isIncome ? "bg-success/10" : "bg-destructive/10"}`}>
+                                <div className={`lg:p-2 p-1 rounded-lg ${isIncome ? "bg-success/10" : "bg-destructive/10"}`}>
                                     {isIncome ? (
                                         <ArrowUpRight className="w-5 h-5 text-success text-green-500" />
                                     ) : (
