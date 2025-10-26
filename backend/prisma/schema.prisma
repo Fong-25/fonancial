@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String        @unique @db.VarChar(50)
+  email        String        @unique @db.VarChar(100)
+  password     String
+  createdAt    DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
+  accounts     Account[]
+  budgets      Budget[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  userId       Int?          @map("user_id")
+  name         String        @db.VarChar(50)
+  balance      BigInt?       @default(0)
+  createdAt    DateTime?     @default(now()) @map("created_at") @db.Timestamp(6)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  userId      Int?      @map("user_id")
+  accountId   Int?      @map("account_id")
+  type        String    @db.VarChar(10)
+  category    String    @db.VarChar(50)
+  amount      BigInt
+  description String?
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  account     Account?  @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("transactions")
+}
+
+model Budget {
+  id        Int       @id @default(autoincrement())
+  userId    Int?      @map("user_id")
+  amount    BigInt
+  month     Int
+  year      Int
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("budgets")
+}

@@ -193,7 +193,9 @@ export default function TransactionFilter({ filters, setFilters }) {
                                     <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">{filters.type}</span>
                                 )}
                                 {filters.category !== "all" && (
-                                    <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">{filters.category}</span>
+                                    <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                                        {currentCategories.find(cat => typeof cat === 'object' && cat.key === filters.category)?.label || filters.category}
+                                    </span>
                                 )}
                                 {filters.fromDate && (
                                     <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
