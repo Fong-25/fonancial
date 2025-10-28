@@ -35,7 +35,13 @@ export const getAccounts = async (req, res) => {
 export const getChart = async (req, res) => {
     try {
         const userId = req.user.userId
-        const data = await getChartData(userId)
+        const { month, year } = req.query
+
+        // Convert to numbers if provided
+        const selectedMonth = month ? parseInt(month) - 1 : null  // Convert to 0-based
+        const selectedYear = year ? parseInt(year) : null
+
+        const data = await getChartData(userId, selectedMonth, selectedYear)
         return res.status(200).json(data)
     } catch (error) {
         console.error("Error fetching chart data", error)

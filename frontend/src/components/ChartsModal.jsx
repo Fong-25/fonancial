@@ -31,18 +31,58 @@ export default function ChartsModal({ isOpen, onClose }) {
     const [chartData, setChartData] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [selectedMonth, setSelectedMonth] = useState(null)
+    const [selectedYear, setSelectedYear] = useState(null)
+    const [showMonthPicker, setShowMonthPicker] = useState(false)
+
+    const generateYearOptions = () => {
+        const currentYear = new Date().getFullYear()
+        const years = []
+        for (let i = 0; i < 5; i++) {
+            years.push(currentYear - i)
+        }
+        return years
+    }
 
     useEffect(() => {
         if (isOpen) {
             fetchChartData()
+        } else {
+            setSelectedMonth(null)
+            setSelectedYear(null)
+            setShowMonthPicker(false)
         }
-    }, [isOpen])
+    }, [isOpen, selectedMonth, selectedYear])
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        if (!showMonthPicker) return
+
+        const handleClickOutside = (event) => {
+            // Check if click is outside the dropdown
+            const dropdown = event.target.closest('.month-picker-container')
+            if (!dropdown) {
+                setShowMonthPicker(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [showMonthPicker])
 
     const fetchChartData = async () => {
         try {
             setIsLoading(true)
             setError(null)
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/history/chart`, {
+
+            let url = `${import.meta.env.VITE_API_URL}/api/history/chart`
+
+            if (selectedMonth !== null && selectedYear !== null) {
+                url += `?month=${selectedMonth}&year=${selectedYear}`
+            }
+            const res = await fetch(url, {
                 credentials: "include",
             })
 
@@ -225,8 +265,8 @@ export default function ChartsModal({ isOpen, onClose }) {
 
     const pieData = getPieChartData()
     const barData = getBarChartData()
-    const previousMonthLabel = chartData?.previousMonth
-        ? `${MONTH_NAMES[chartData.previousMonth.month - 1]} ${chartData.previousMonth.year}`
+    const previousMonthLabel = chartData?.selectedMonth
+        ? `${MONTH_NAMES[chartData.selectedMonth.month - 1]} ${chartData.selectedMonth.year}`
         : "Previous Month"
 
     return (
@@ -262,24 +302,98 @@ export default function ChartsModal({ isOpen, onClose }) {
                         </div>
                     ) : (
                         <>
-                            {/* Pie Chart Section */}
-                            <div className="bg-background rounded-lg p-4 sm:p-6 border border-border">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <PieChartIcon className="w-5 h-5 text-primary" />
-                                    <h3 className="text-base sm:text-lg font-semibold">Expense Categories</h3>
+                            <div className="space-y-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <PieChartIcon className="w-5 h-5 text-primary" />
+                                        <h3 className="text-base sm:text-lg font-semibold">Expense Categories</h3>
+                                    </div>
+
+                                    {/* Compact Month Selector Button */}
+                                    <div className="relative month-picker-container">
+                                        <button
+                                            onClick={() => setShowMonthPicker(!showMonthPicker)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-lg hover:border-primary transition-colors text-sm"
+                                        >
+                                            <span className="font-medium">{previousMonthLabel}</span>
+                                            <svg className={`w-4 h-4 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        {showMonthPicker && (
+                                            <div className="absolute right-0 mt-2 w-64 bg-white border border-border rounded-lg shadow-lg z-10 p-3">
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <label className="text-xs font-medium text-muted-foreground block mb-1">Month</label>
+                                                        <select
+                                                            value={selectedMonth || ''}
+                                                            onChange={(e) => {
+                                                                const month = e.target.value ? parseInt(e.target.value) : null
+                                                                setSelectedMonth(month)
+                                                                if (month && !selectedYear) {
+                                                                    setSelectedYear(new Date().getFullYear())
+                                                                }
+                                                            }}
+                                                            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                                                        >
+                                                            <option value="">Previous Month</option>
+                                                            {MONTH_NAMES.map((month, idx) => (
+                                                                <option key={idx} value={idx + 1}>{month}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="text-xs font-medium text-muted-foreground block mb-1">Year</label>
+                                                        <select
+                                                            value={selectedYear || ''}
+                                                            onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : null)}
+                                                            disabled={!selectedMonth}
+                                                            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            <option value="">Select Year</option>
+                                                            {generateYearOptions().map(year => (
+                                                                <option key={year} value={year}>{year}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    <div className="flex gap-2 pt-2 border-t border-border">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedMonth(null)
+                                                                setSelectedYear(null)
+                                                                setShowMonthPicker(false)
+                                                            }}
+                                                            className="flex-1 px-3 py-2 text-sm border border-border rounded-lg hover:bg-accent transition-colors"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setShowMonthPicker(false)}
+                                                            className="flex-1 px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                                                        >
+                                                            Apply
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <p className="text-xs sm:text-sm text-muted-foreground mb-4">{previousMonthLabel}</p>
-                                {pieData ? (
-                                    <div className="h-[250px] sm:h-[300px]">
-                                        <Pie data={pieData} options={pieChartOptions} />
-                                    </div>
-                                ) : (
-                                    <div className="h-[250px] sm:h-[300px] flex items-center justify-center text-muted-foreground">
-                                        No expense data available for {previousMonthLabel}
-                                    </div>
-                                )}
                             </div>
 
+                            {pieData ? (
+                                <div className="h-[250px] sm:h-[300px]">
+                                    <Pie data={pieData} options={pieChartOptions} />
+                                </div>
+                            ) : (
+                                <div className="h-[250px] sm:h-[300px] flex items-center justify-center text-muted-foreground">
+                                    No expense data available for {previousMonthLabel}
+                                </div>
+                            )}
                             {/* Bar Chart Section */}
                             <div className="bg-background rounded-lg p-4 sm:p-6 border border-border">
                                 <div className="flex items-center gap-2 mb-4">
