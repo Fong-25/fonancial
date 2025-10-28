@@ -160,21 +160,28 @@ export const getAccountData = async (userId) => {
 // }
 
 // Prisma getChartData
-export const getChartData = async (userId) => {
+export const getChartData = async (userId, selectedMonth = null, selectedYear = null) => {
     const currentDate = new Date()
-    const previousMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
-    const previousYear = currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear()
 
-    const startOfPrevMonth = new Date(previousYear, previousMonth, 1)
-    const endOfPrevMonth = new Date(previousYear, previousMonth + 1, 1)
+    let targetMonth, targetYear;
+    if (selectedMonth !== null && selectedYear !== null) {
+        targetMonth = selectedMonth
+        targetYear = selectedYear
+    } else {
+        targetMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
+        targetYear = currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear()
+    }
+
+    const startOfMonth = new Date(targetYear, targetMonth, 1)
+    const endOfMonth = new Date(targetYear, targetMonth + 1, 1)
 
     const expenseTransactions = await prisma.transaction.findMany({
         where: {
             userId,
             type: 'expense',
             createdAt: {
-                gte: startOfPrevMonth,
-                lt: endOfPrevMonth
+                gte: startOfMonth,
+                lt: endOfMonth
             }
         },
         select: {
@@ -245,9 +252,9 @@ export const getChartData = async (userId) => {
     return {
         expenseCategories: sortedExpenseCategories,
         monthlyData,
-        previousMonth: {
-            month: previousMonth + 1,
-            year: previousYear
+        selectedMonth: {
+            month: targetMonth + 1,
+            year: targetYear
         }
     }
 }
