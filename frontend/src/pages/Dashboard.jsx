@@ -56,7 +56,7 @@ export default function Dashboard() {
             </div>
             <AddTransaction accounts={data.accounts} user={data.user} categories={data.categories} onTransactionAdded={fetchDashboard} />
             <AddAccount user={data.user} onAccountAdded={fetchDashboard} />
-            <TransferModal onTransferCompleted={fetchDashboard} />
+            <TransferModal accounts={data.accounts} onTransferCompleted={fetchDashboard} />
         </div>
     )
 

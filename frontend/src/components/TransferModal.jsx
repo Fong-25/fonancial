@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { X, ArrowRightLeft, Loader2 } from "lucide-react"
 import toast from "react-hot-toast"
 
-export default function TransferModal({ onTransferCompleted }) {
+export default function TransferModal({ accounts, onTransferCompleted }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [accounts, setAccounts] = useState([])
+    // const [accounts, setAccounts] = useState([])
     const [formData, setFormData] = useState({
         fromAccount: "",
         toAccount: "",
@@ -16,34 +16,35 @@ export default function TransferModal({ onTransferCompleted }) {
     })
 
     // Fetch accounts when modal opens
-    useEffect(() => {
-        if (isOpen) {
-            fetchAccounts()
-        }
-    }, [isOpen])
+    // useEffect(() => {
+    //     if (isOpen) {
+    //         fetchAccounts()
+    //     }
+    // }, [isOpen])
 
-    const fetchAccounts = async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts`, {
-                credentials: "include",
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setAccounts(data)
-                // Set default accounts
-                if (data.length >= 2) {
-                    setFormData(prev => ({
-                        ...prev,
-                        fromAccount: data[0].id.toString(),
-                        toAccount: data[1].id.toString(),
-                    }))
-                }
-            }
-        } catch (error) {
-            console.error("Failed to fetch accounts:", error)
-            toast.error("Failed to load accounts")
-        }
-    }
+    // const fetchAccounts = async () => {
+    //     try {
+    //         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/accounts`, {
+    //             credentials: "include",
+    //         })
+    //         if (res.ok) {
+    //             const data = await res.json()
+    //             setAccounts(data)
+    //             console.log('Transfer modal', data)
+    //             // Set default accounts
+    //             if (data.length >= 2) {
+    //                 setFormData(prev => ({
+    //                     ...prev,
+    //                     fromAccount: data[0].id.toString(),
+    //                     toAccount: data[1].id.toString(),
+    //                 }))
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error("Failed to fetch accounts:", error)
+    //         toast.error("Failed to load accounts")
+    //     }
+    // }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target
