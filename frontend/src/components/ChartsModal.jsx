@@ -1,6 +1,6 @@
 "use client"
 
-import { X, PieChartIcon, BarChart3 } from "lucide-react"
+import { X, PieChartIcon, PieChart, BarChart3, ChevronLeft, ChevronRight, Calendar } from "lucide-react"
 import { Pie, Bar } from "react-chartjs-2"
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from "chart.js"
 import { useState, useEffect } from "react"
@@ -26,6 +26,7 @@ const CATEGORY_LABELS = {
 }
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const FULL_MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 export default function ChartsModal({ isOpen, onClose }) {
     const [chartData, setChartData] = useState(null)
@@ -33,16 +34,7 @@ export default function ChartsModal({ isOpen, onClose }) {
     const [error, setError] = useState(null)
     const [selectedMonth, setSelectedMonth] = useState(null)
     const [selectedYear, setSelectedYear] = useState(null)
-    const [showMonthPicker, setShowMonthPicker] = useState(false)
-
-    const generateYearOptions = () => {
-        const currentYear = new Date().getFullYear()
-        const years = []
-        for (let i = 0; i < 5; i++) {
-            years.push(currentYear - i)
-        }
-        return years
-    }
+    const [showMonthGrid, setShowMonthGrid] = useState(false)
 
     useEffect(() => {
         if (isOpen) {
@@ -50,19 +42,17 @@ export default function ChartsModal({ isOpen, onClose }) {
         } else {
             setSelectedMonth(null)
             setSelectedYear(null)
-            setShowMonthPicker(false)
+            setShowMonthGrid(false)
         }
     }, [isOpen, selectedMonth, selectedYear])
 
-    // Close dropdown when clicking outside
     useEffect(() => {
-        if (!showMonthPicker) return
+        if (!showMonthGrid) return
 
         const handleClickOutside = (event) => {
-            // Check if click is outside the dropdown
-            const dropdown = event.target.closest('.month-picker-container')
-            if (!dropdown) {
-                setShowMonthPicker(false)
+            const grid = event.target.closest('.month-grid-container')
+            if (!grid) {
+                setShowMonthGrid(false)
             }
         }
 
@@ -70,7 +60,7 @@ export default function ChartsModal({ isOpen, onClose }) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [showMonthPicker])
+    }, [showMonthGrid])
 
     const fetchChartData = async () => {
         try {
@@ -97,6 +87,99 @@ export default function ChartsModal({ isOpen, onClose }) {
             setError(err.message)
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const handlePrevMonth = () => {
+        const now = new Date()
+        const currentMonth = selectedMonth !== null ? selectedMonth : now.getMonth()
+        const currentYear = selectedYear !== null ? selectedYear : now.getFullYear()
+
+        let newMonth = currentMonth - 1
+        let newYear = currentYear
+
+        if (newMonth < 1) {
+            newMonth = 12
+            newYear -= 1
+        }
+
+        setSelectedMonth(newMonth)
+        setSelectedYear(newYear)
+    }
+
+    const handleNextMonth = () => {
+        const now = new Date()
+        const currentMonth = selectedMonth !== null ? selectedMonth : now.getMonth()
+        const currentYear = selectedYear !== null ? selectedYear : now.getFullYear()
+
+        let newMonth = currentMonth + 1
+        let newYear = currentYear
+
+        if (newMonth > 12) {
+            newMonth = 1
+            newYear += 1
+        }
+
+        // Don't allow going beyond current month
+        if (newYear > now.getFullYear() || (newYear === now.getFullYear() && newMonth > now.getMonth() + 1)) {
+            return
+        }
+
+        setSelectedMonth(newMonth)
+        setSelectedYear(newYear)
+    }
+
+    const handleMonthSelect = (month, year) => {
+        setSelectedMonth(month)
+        setSelectedYear(year)
+        setShowMonthGrid(false)
+    }
+
+    const handleReset = () => {
+        setSelectedMonth(null)
+        setSelectedYear(null)
+    }
+
+    const isAtCurrentMonth = () => {
+        if (selectedMonth === null || selectedYear === null) return true
+        const now = new Date()
+        return selectedYear === now.getFullYear() && selectedMonth === now.getMonth() + 1
+    }
+
+    const generateMonthGrid = () => {
+        const now = new Date()
+        const currentYear = selectedYear !== null ? selectedYear : now.getFullYear()
+        const currentMonth = now.getMonth() + 1
+        const currentYearNow = now.getFullYear()
+
+        return FULL_MONTH_NAMES.map((monthName, index) => {
+            const monthNum = index + 1
+            const isFuture = currentYear > currentYearNow || (currentYear === currentYearNow && monthNum > currentMonth)
+            const isSelected = selectedMonth === monthNum && selectedYear === currentYear
+
+            return {
+                name: monthName,
+                short: MONTH_NAMES[index],
+                num: monthNum,
+                disabled: isFuture,
+                selected: isSelected
+            }
+        })
+    }
+
+    const changeYear = (direction) => {
+        const now = new Date()
+        const currentYear = selectedYear !== null ? selectedYear : now.getFullYear()
+        const newYear = currentYear + direction
+
+        // Don't allow going beyond current year
+        if (newYear > now.getFullYear()) return
+
+        setSelectedYear(newYear)
+
+        // Adjust month if needed
+        if (selectedMonth && newYear === now.getFullYear() && selectedMonth > now.getMonth() + 1) {
+            setSelectedMonth(now.getMonth() + 1)
         }
     }
 
@@ -269,6 +352,8 @@ export default function ChartsModal({ isOpen, onClose }) {
         ? `${MONTH_NAMES[chartData.selectedMonth.month - 1]} ${chartData.selectedMonth.year}`
         : "Previous Month"
 
+    const displayYear = selectedYear !== null ? selectedYear : new Date().getFullYear()
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-white rounded-xl border border-border w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -303,88 +388,111 @@ export default function ChartsModal({ isOpen, onClose }) {
                     ) : (
                         <>
                             <div className="space-y-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <PieChartIcon className="w-5 h-5 text-primary" />
-                                        <h3 className="text-base sm:text-lg font-semibold">Expense Categories</h3>
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <PieChart className="w-5 h-5 text-primary" />
+                                            <h3 className="text-base sm:text-lg font-semibold">Expense Categories</h3>
+                                        </div>
+                                        {(selectedMonth !== null || selectedYear !== null) && (
+                                            <button
+                                                onClick={handleReset}
+                                                className="text-xs sm:text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                                            >
+                                                Reset to Default
+                                            </button>
+                                        )}
                                     </div>
 
-                                    {/* Compact Month Selector Button */}
-                                    <div className="relative month-picker-container">
-                                        <button
-                                            onClick={() => setShowMonthPicker(!showMonthPicker)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-border rounded-lg hover:border-primary transition-colors text-sm"
-                                        >
-                                            <span className="font-medium">{previousMonthLabel}</span>
-                                            <svg className={`w-4 h-4 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
+                                    {/* Enhanced Month Selector */}
+                                    <div className="flex items-center gap-2">
+                                        {/* Quick Navigation */}
+                                        <div className="flex items-center gap-1 bg-accent/50 rounded-lg p-1">
+                                            <button
+                                                onClick={handlePrevMonth}
+                                                className="p-1.5 sm:p-2 hover:bg-white rounded-md transition-colors"
+                                                aria-label="Previous month"
+                                            >
+                                                <ChevronLeft className="w-4 h-4" />
+                                            </button>
 
-                                        {/* Dropdown Menu */}
-                                        {showMonthPicker && (
-                                            <div className="absolute right-0 mt-2 w-64 bg-white border border-border rounded-lg shadow-lg z-10 p-3">
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <label className="text-xs font-medium text-muted-foreground block mb-1">Month</label>
-                                                        <select
-                                                            value={selectedMonth || ''}
-                                                            onChange={(e) => {
-                                                                const month = e.target.value ? parseInt(e.target.value) : null
-                                                                setSelectedMonth(month)
-                                                                if (month && !selectedYear) {
-                                                                    setSelectedYear(new Date().getFullYear())
-                                                                }
-                                                            }}
-                                                            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                                            <button
+                                                onClick={handleNextMonth}
+                                                disabled={isAtCurrentMonth()}
+                                                className="p-1.5 sm:p-2 hover:bg-white rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                aria-label="Next month"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
+
+                                        {/* Current Selection Display & Grid Trigger */}
+                                        <div className="relative flex-1 month-grid-container">
+                                            <button
+                                                onClick={() => setShowMonthGrid(!showMonthGrid)}
+                                                className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-accent/50 hover:bg-accent/70 rounded-lg transition-colors"
+                                            >
+                                                <Calendar className="w-4 h-4 text-primary" />
+                                                <span className="font-medium text-sm sm:text-base">{previousMonthLabel}</span>
+                                                <svg className={`w-4 h-4 transition-transform ${showMonthGrid ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+
+                                            {/* Month Grid Picker */}
+                                            {showMonthGrid && (
+                                                <div className="absolute left-0 right-0 sm:left-auto sm:right-0 sm:w-80 mt-2 bg-white border border-border rounded-lg shadow-lg z-20 p-4">
+                                                    {/* Year Selector */}
+                                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
+                                                        <button
+                                                            onClick={() => changeYear(-1)}
+                                                            className="p-1.5 hover:bg-accent rounded-md transition-colors"
+                                                            aria-label="Previous year"
                                                         >
-                                                            <option value="">Previous Month</option>
-                                                            {MONTH_NAMES.map((month, idx) => (
-                                                                <option key={idx} value={idx + 1}>{month}</option>
-                                                            ))}
-                                                        </select>
+                                                            <ChevronLeft className="w-5 h-5" />
+                                                        </button>
+
+                                                        <span className="font-semibold text-lg">{displayYear}</span>
+
+                                                        <button
+                                                            onClick={() => changeYear(1)}
+                                                            disabled={displayYear >= new Date().getFullYear()}
+                                                            className="p-1.5 hover:bg-accent rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                            aria-label="Next year"
+                                                        >
+                                                            <ChevronRight className="w-5 h-5" />
+                                                        </button>
                                                     </div>
 
-                                                    <div>
-                                                        <label className="text-xs font-medium text-muted-foreground block mb-1">Year</label>
-                                                        <select
-                                                            value={selectedYear || ''}
-                                                            onChange={(e) => setSelectedYear(e.target.value ? parseInt(e.target.value) : null)}
-                                                            disabled={!selectedMonth}
-                                                            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            <option value="">Select Year</option>
-                                                            {generateYearOptions().map(year => (
-                                                                <option key={year} value={year}>{year}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-
-                                                    <div className="flex gap-2 pt-2 border-t border-border">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedMonth(null)
-                                                                setSelectedYear(null)
-                                                                setShowMonthPicker(false)
-                                                            }}
-                                                            className="flex-1 px-3 py-2 text-sm border border-border rounded-lg hover:bg-accent transition-colors"
-                                                        >
-                                                            Reset
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setShowMonthPicker(false)}
-                                                            className="flex-1 px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                                                        >
-                                                            Apply
-                                                        </button>
+                                                    {/* Month Grid */}
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        {generateMonthGrid().map((month) => (
+                                                            <button
+                                                                key={month.num}
+                                                                onClick={() => handleMonthSelect(month.num, displayYear)}
+                                                                disabled={month.disabled}
+                                                                className={`
+                                                                    px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                                                    ${month.selected
+                                                                        ? 'bg-primary text-white'
+                                                                        : 'hover:bg-accent'
+                                                                    }
+                                                                    ${month.disabled
+                                                                        ? 'opacity-40 cursor-not-allowed'
+                                                                        : 'cursor-pointer'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                {month.short}
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
                             {pieData ? (
                                 <div className="h-[250px] sm:h-[300px]">
                                     <Pie data={pieData} options={pieChartOptions} />
