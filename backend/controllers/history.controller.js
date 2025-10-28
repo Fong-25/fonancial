@@ -35,7 +35,7 @@ export const getAccounts = async (req, res) => {
 export const getChart = async (req, res) => {
     try {
         const userId = req.user.userId
-        const { month, year } = req.body
+        const { month, year } = req.query
 
         // Convert to numbers if provided
         const selectedMonth = month ? parseInt(month) - 1 : null  // Convert to 0-based
