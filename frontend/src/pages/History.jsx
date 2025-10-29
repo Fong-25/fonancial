@@ -203,10 +203,13 @@ export default function History() {
                                                 <div
                                                     className={`text-lg font-bold ${transaction.type === "income"
                                                         ? "text-emerald-600 dark:text-emerald-400"
-                                                        : "text-red-600 dark:text-red-400"
+                                                        : transaction.type === 'transfer' ? 'text-blue-500'
+                                                            : "text-red-600 dark:text-red-400"
                                                         }`}
                                                 >
-                                                    {transaction.type === "income" ? "+" : "-"}
+                                                    {transaction.type === "income" ? "+" :
+                                                        transaction.type === 'transfer' ? "±" :
+                                                            "-"}
                                                     {formatAmount(transaction.amount)} đ
                                                 </div>
                                                 <div

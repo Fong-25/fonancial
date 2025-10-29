@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 
 export default function TransactionFilter({ filters, setFilters }) {
-    const types = ["all", "expense", "income"]
+    const types = ["all", "expense", "income", "transfer"]
     const [isLoading, setIsLoading] = useState(true)
     const [accounts, setAccounts] = useState([])
     const [categoriesData, setCategoriesData] = useState(null)
