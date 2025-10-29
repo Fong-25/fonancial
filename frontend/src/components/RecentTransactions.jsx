@@ -1,4 +1,4 @@
-import { ArrowUpRight, ArrowDownRight, ShoppingBag, Home, Car, Coffee, Briefcase, History } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, ArrowRightLeft, History } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 
 export default function RecentTransactions({ transactions, categories }) {
@@ -46,6 +46,7 @@ export default function RecentTransactions({ transactions, categories }) {
                 ) : (
                     transactions.map((transaction) => {
                         const isIncome = transaction.type === "income"
+                        const isTransfer = transaction.type === 'transfer'
                         const categoryDetails = getCategoryDetails(transaction.category)
                         return (
                             <div
@@ -55,6 +56,8 @@ export default function RecentTransactions({ transactions, categories }) {
                                 <div className={`lg:p-2 p-1 rounded-lg ${isIncome ? "bg-success/10" : "bg-destructive/10"}`}>
                                     {isIncome ? (
                                         <ArrowUpRight className="w-5 h-5 text-success text-green-500" />
+                                    ) : isTransfer ? (
+                                        <ArrowRightLeft className="w-5 h-5 text-blue-500" />
                                     ) : (
                                         <ArrowDownRight className="w-5 h-5 text-destructive text-red-500" />
                                     )}
@@ -72,8 +75,13 @@ export default function RecentTransactions({ transactions, categories }) {
                                 </div>
 
                                 <div className="flex items-center gap-1">
-                                    <span className={`font-semibold ${isIncome ? "text-success" : "text-destructive"}`}>
-                                        {isIncome ? "+" : "-"}{Number(transaction.amount).toLocaleString("vi-VN")} ₫
+                                    <span className={`font-semibold ${isIncome ? "text-success" :
+                                        isTransfer ? "text-blue-500" :
+                                            "text-destructive"
+                                        }`}>
+                                        {isIncome ? "+" :
+                                            isTransfer ? "±" :
+                                                "-"}{Number(transaction.amount).toLocaleString("vi-VN")} ₫
                                     </span>
                                 </div>
                             </div>
