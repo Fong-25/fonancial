@@ -72,6 +72,7 @@ export const getDashboardData = async (userId) => {
     const transactions = await prisma.transaction.findMany({
         where: {
             userId,
+            type: { not: 'transfer' },
             createdAt: {
                 gte: startOfMonth,
                 lt: endOfMonth

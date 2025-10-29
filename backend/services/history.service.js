@@ -209,6 +209,7 @@ export const getChartData = async (userId, selectedMonth = null, selectedYear = 
     const monthlyTransactions = await prisma.transaction.findMany({
         where: {
             userId,
+            type: { not: 'transfer' },
             createdAt: {
                 gte: startOfPeriod,
                 lt: endOfPeriod

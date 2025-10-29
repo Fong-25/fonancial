@@ -338,8 +338,8 @@ export const createTransfer = async ({ userId, fromAccountId, toAccountId, amoun
                 data: {
                     userId,
                     accountId: fromAccountId,
-                    type: 'expense',
-                    category: 'other',
+                    type: 'transfer',
+                    category: 'transfer_out',
                     amount,
                     description: `${description} (Transfer out)`
                 },
@@ -354,8 +354,8 @@ export const createTransfer = async ({ userId, fromAccountId, toAccountId, amoun
                 data: {
                     userId,
                     accountId: toAccountId,
-                    type: 'income',
-                    category: 'other_income',
+                    type: 'transfer',
+                    category: 'transfer_in',
                     amount,
                     description: `${description} (Transfer in)`
                 },
